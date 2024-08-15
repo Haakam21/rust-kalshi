@@ -1,0 +1,3816 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "This documentation describes Kalshi's trading API (known as Trade API v2).\nBy using this API, you agree to Kalshi's Developer Agreement (https://kalshi.com/developer-agreement).",
+        "title": "Kalshi Trade API",
+        "contact": {
+            "name": "Kalshi API Team",
+            "email": "support@kalshi.com"
+        },
+        "version": "2.0.0"
+    },
+    "paths": {
+        "/events": {
+            "get": {
+                "description": "Endpoint for getting data about all events.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetEvents",
+                "operationId": "GetEvents",
+                "parameters": [
+                    {
+                        "x-go-name": "Limit",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "maximum": 200
+                        }
+                    },
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like series_ticker was passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "Status",
+                        "description": "Restricts the events to those with certain statuses, as a comma separated list.\nThe following values are accepted: unopened, open, closed, settled.",
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "SeriesTicker",
+                        "description": "Series ticker to retrieve contracts for.",
+                        "name": "series_ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "WithNestedMarkets",
+                        "description": "If the markets belonging to the events should be added in the response as a nested field in this event.",
+                        "name": "with_nested_markets",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetEventsResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/events/{event_ticker}": {
+            "get": {
+                "description": "Endpoint for getting data about an event by its ticker.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetEvent",
+                "operationId": "GetEvent",
+                "parameters": [
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Should be filled with the ticker of the event.",
+                        "name": "event_ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "WithNestedMarkets",
+                        "description": "If the markets belonging to the events should be added in the response as a nested field in this event.",
+                        "name": "with_nested_markets",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetEventResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/exchange/schedule": {
+            "get": {
+                "description": "Endpoint for getting the exchange schedule.",
+                "tags": [
+                    "exchange"
+                ],
+                "summary": "GetExchangeSchedule",
+                "operationId": "GetExchangeSchedule",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetExchangeScheduleResponse"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/exchange/status": {
+            "get": {
+                "description": "Endpoint for getting all exchange-wide announcements.",
+                "tags": [
+                    "exchange"
+                ],
+                "summary": "GetExchangeAnnouncements",
+                "operationId": "GetExchangeAnnouncements",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetExchangeAnnouncementsResponse"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Endpoint to start a REST session with the Kalshi API.",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login",
+                "operationId": "Login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "description": "Login input data",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/LoginResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Terminate your session with Kalshi.\nAfter this endpoint is called, the session token previously returned\nby the `/log_in` endpoint will no longer be valid.",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout",
+                "operationId": "Logout",
+                "responses": {
+                    "204": {
+                        "$ref": "#/components/responses/EmptyResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/markets": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for listing and discovering markets on Kalshi.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetMarkets",
+                "operationId": "GetMarkets",
+                "parameters": [
+                    {
+                        "x-go-name": "Limit",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    },
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like tickers, max_ts or min_ts were passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "EventTicker",
+                        "description": "Event ticker to retrieve markets for.",
+                        "name": "event_ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "SeriesTicker",
+                        "description": "Series ticker to retrieve contracts for.",
+                        "name": "series_ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "MaxCloseTs",
+                        "description": "Restricts the markets to those that are closing in or before this timestamp.",
+                        "name": "max_close_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "MinCloseTs",
+                        "description": "Restricts the markets to those that are closing in or after this timestamp.",
+                        "name": "min_close_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "Status",
+                        "description": "Restricts the markets to those with certain statuses, as a comma separated list.\nThe following values are accepted: unopened, open, closed, settled.",
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "Tickers",
+                        "description": "Restricts the markets to those with certain tickers, as a comma separated list.",
+                        "name": "tickers",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetMarketsResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/markets/trades": {
+            "get": {
+                "description": "Endpoint for getting all trades for all markets.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetTrades",
+                "operationId": "GetTrades",
+                "parameters": [
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like ticker, max_ts or min_ts were passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "PageSize",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    },
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Parameter to specify a specific market to get trades from.",
+                        "name": "ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "MinTs",
+                        "description": "Restricts the response to trades after a timestamp.",
+                        "name": "min_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "MaxTs",
+                        "description": "Restricts the response to trades before a timestamp.",
+                        "name": "max_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PublicTradesGetResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/markets/{ticker}": {
+            "get": {
+                "description": "Endpoint for getting data about a specific market.\n\nThe value for the ticker path parameter should match the ticker of the target market.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetMarket",
+                "operationId": "GetMarket",
+                "parameters": [
+                    {
+                        "x-go-name": "MarketTicker",
+                        "description": "Market ticker for the market being retrieved.",
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetMarketResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/markets/{ticker}/orderbook": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting the orderbook for a market.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetMarketOrderbook",
+                "operationId": "GetMarketOrderbook",
+                "parameters": [
+                    {
+                        "x-go-name": "MarketTicker",
+                        "description": "Market ticker.",
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "Depth",
+                        "description": "Depth specifies the maximum number of orderbook price levels you want to see for either side.\nOnly the highest (most relevant) price level are kept.",
+                        "name": "depth",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetMarketOrderbookResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/balance": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting the balance of the logged-in member.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetBalance",
+                "operationId": "GetBalance",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetBalanceResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/fills": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting all fills for the logged-in member.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetFills",
+                "operationId": "GetFills",
+                "parameters": [
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Restricts the response to trades in a specific market.",
+                        "name": "ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "OrderId",
+                        "description": "Restricts the response to trades related to a specific order.",
+                        "name": "order_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "x-go-name": "MinTs",
+                        "description": "Restricts the response to trades after a timestamp.",
+                        "name": "min_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "MaxTs",
+                        "description": "Restricts the response to trades before a timestamp.",
+                        "name": "max_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "PageSize",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    },
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like ticker, max_ts or min_ts were passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetFillsResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/orders": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting all orders for the logged-in member.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetOrders",
+                "operationId": "GetOrders",
+                "parameters": [
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Restricts the response to orders in a single market.",
+                        "name": "ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "EventTicker",
+                        "description": "Restricts the response to orders in a single event.",
+                        "name": "event_ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "MinTs",
+                        "description": "Restricts the response to orders after a timestamp, formatted as a Unix Timestamp.",
+                        "name": "min_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "MaxTs",
+                        "description": "Restricts the response to orders before a timestamp, formatted as a Unix Timestamp.",
+                        "name": "max_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "Status",
+                        "description": "Restricts the response to orders that have a certain status: resting, canceled, or executed.",
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like ticker, max_ts or min_ts were passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "PageSize",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetOrdersResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for submitting orders in a market.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "CreateOrder",
+                "operationId": "CreateOrder",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrderRequest"
+                            }
+                        }
+                    },
+                    "description": "Order create input data",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/CreateOrderResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/orders/batched": {
+            "post": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for submitting a batch of orders.\n\nEach order in the batch is counted against the total rate limit for order operations.\nConsequently, the size of the batch is capped by the current per-second rate-limit\nconfiguration applicable to the user.\n\nAt the moment of writing, the limit is 20 orders per batch.\nAvailable to members with advanced access only.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "BatchCreateOrders",
+                "operationId": "BatchCreateOrders",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchCreateOrdersRequest"
+                            }
+                        }
+                    },
+                    "description": "Batch order create input data.",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/BatchCreateOrdersResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for cancelling up to 20 orders at once.\nAvailable to members with advanced access only.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "BatchCancelOrders",
+                "operationId": "BatchCancelOrders",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BatchCancelOrdersRequest"
+                            }
+                        }
+                    },
+                    "description": "Batch orders cancel input data.",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/BatchCancelOrdersResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/orders/{order_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting a single order.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetOrder",
+                "operationId": "GetOrder",
+                "parameters": [
+                    {
+                        "x-go-name": "OrderId",
+                        "description": "Order_id input for the current order.",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetOrderResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for canceling orders.\n\nThe value for the orderId should match the id field of the order you want to decrease.\nCommonly, DELETE-type endpoints return 204 status with no body content on success.\nBut we can't completely delete the order, as it may be partially filled already.\nInstead, the DeleteOrder endpoint reduce the order completely,\nessentially zeroing the remaining resting contracts on it.\nThe zeroed order is returned on the response payload as a form of validation for the client.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "CancelOrder",
+                "operationId": "CancelOrder",
+                "parameters": [
+                    {
+                        "x-go-name": "OrderId",
+                        "description": "Order_id input for the current order.",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/CancelOrderResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/orders/{order_id}/amend": {
+            "post": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for amending the max number of fillable contracts and/or price in an existing order.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "AmendOrder",
+                "operationId": "AmendOrder",
+                "parameters": [
+                    {
+                        "x-go-name": "OrderId",
+                        "description": "ID of the order to be amended.",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AmendOrderRequest"
+                            }
+                        }
+                    },
+                    "description": "Order data",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/AmendOrderResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/orders/{order_id}/decrease": {
+            "post": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for decreasing the number of contracts in an existing order.\nThis is the only kind of edit available on order quantity.\nCancelling an order is equivalent to decreasing an order amount to zero.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "DecreaseOrder",
+                "operationId": "DecreaseOrder",
+                "parameters": [
+                    {
+                        "x-go-name": "OrderId",
+                        "description": "ID of the order to be decreased.",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DecreaseOrderRequest"
+                            }
+                        }
+                    },
+                    "description": "Order data",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "$ref": "#/components/responses/DecreaseOrderResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/positions": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting all market positions for the logged-in member.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetPositions",
+                "operationId": "GetPositions",
+                "parameters": [
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.\nThe cursor does not store any filters, so if any filter parameters like settlement_status, ticker, or event_ticker were passed in the original query they must be passed again.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "Limit",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    },
+                    {
+                        "x-go-name": "CountFilter",
+                        "description": "Restricts the positions to those with any of following fields with non-zero values, as a comma separated list.\nThe following values are accepted: position, total_traded, resting_order_count",
+                        "name": "count_filter",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "SettlementStatus",
+                        "description": "Settlement status of the markets to return. Defaults to unsettled.\nall SettlementStatusAll\nsettled SettlementStatusSettled\nunsettled SettlementStatusUnsettled",
+                        "name": "settlement_status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "all",
+                                "settled",
+                                "unsettled"
+                            ]
+                        }
+                    },
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Ticker of desired positions.",
+                        "name": "ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "EventTicker",
+                        "description": "Event ticker of desired positions.",
+                        "name": "event_ticker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetPositionsResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/settlements": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting the logged-in member's settlements historical track.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetPortfolioSettlements",
+                "operationId": "GetPortfolioSettlements",
+                "parameters": [
+                    {
+                        "x-go-name": "Limit",
+                        "description": "Parameter to specify the number of results per page. Defaults to 100.",
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "maximum": 1000
+                        }
+                    },
+                    {
+                        "x-go-name": "MinTs",
+                        "description": "Restricts the response to settlements after a timestamp.",
+                        "name": "min_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "MaxTs",
+                        "description": "Restricts the response to settlements before a timestamp.",
+                        "name": "max_ts",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "Cursor",
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nSo this optional parameter, when filled, should be filled with the cursor string returned in a previous request to this end-point.\nFilling this would basically tell the api to get the next page containing the number of records passed on the limit parameter.\nOn the other side not filling it tells the api you want to get the first page for another query.",
+                        "name": "cursor",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetPortfolioSettlementsResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/portfolio/summary/total_resting_order_value": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting the total value, in cents, of resting orders.\nThis endpoint is only intended for use by FCM members (rare).\nNote: If you're uncertain about this endpoint, it likely does not apply to you.",
+                "tags": [
+                    "portfolio"
+                ],
+                "summary": "GetPortfolioRestingOrderTotalValue",
+                "operationId": "GetPortfolioRestingOrderTotalValue",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetUserRestingOrderTotalValueResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/series/{series_ticker}": {
+            "get": {
+                "description": "Endpoint for getting data about a series by its ticker.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetSeries",
+                "operationId": "GetSeries",
+                "parameters": [
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Should be filled with the ticker of the series.",
+                        "name": "series_ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetSeriesResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        },
+        "/series/{series_ticker}/markets/{ticker}/candlesticks": {
+            "get": {
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ],
+                "description": "Endpoint for getting the historical candlesticks for a market.\n\nThe values for the series_ticker and ticker path parameters should match the series_ticker and ticker of the target market.\nThe start_ts parameter will restrict candlesticks to those ending on or after provided timestamp.\nThe end_ts parameter will restrict candlesticks to those ending on or before provided timestamp.\nThe period_interval parameter determines the time period length of each candlestick.",
+                "tags": [
+                    "market"
+                ],
+                "summary": "GetMarketCandlesticks",
+                "operationId": "GetMarketCandlesticks",
+                "parameters": [
+                    {
+                        "x-go-name": "Ticker",
+                        "description": "Unique identifier for the market.",
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "SeriesTicker",
+                        "description": "Unique identifier for the series.",
+                        "name": "series_ticker",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-go-name": "StartTs",
+                        "description": "Restricts the candlesticks to those covering time periods that end on or after this timestamp.",
+                        "name": "start_ts",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "EndTs",
+                        "description": "Restricts the candlesticks to those covering time periods that end on or before this timestamp.\nMust be within 5000 period_intervals after start_ts.",
+                        "name": "end_ts",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "x-go-name": "PeriodInterval",
+                        "description": "Specifies the length of each candlestick period, in minutes. Must be one minute, one hour, or one day.",
+                        "name": "period_interval",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/GetMarketCandlesticksResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/JSONError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/JSONError"
+                    }
+                }
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "https://trading-api.kalshi.com/trade-api/v2"
+        }
+    ],
+    "components": {
+        "responses": {
+            "AmendOrderResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/AmendOrderResponse"
+                        }
+                    }
+                }
+            },
+            "BatchCancelOrdersResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/BatchCancelOrdersResponse"
+                        }
+                    }
+                }
+            },
+            "BatchCreateOrdersResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/BatchCreateOrdersResponse"
+                        }
+                    }
+                }
+            },
+            "CancelOrderResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CancelOrderResponse"
+                        }
+                    }
+                }
+            },
+            "CreateOrderResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrderResponse"
+                        }
+                    }
+                }
+            },
+            "DecreaseOrderResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/DecreaseOrderResponse"
+                        }
+                    }
+                }
+            },
+            "EmptyResponse": {
+                "description": "No fields are returned on the response."
+            },
+            "GetBalanceResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetBalanceResponse"
+                        }
+                    }
+                }
+            },
+            "GetEventResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetEventResponse"
+                        }
+                    }
+                }
+            },
+            "GetEventsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetEventsResponse"
+                        }
+                    }
+                }
+            },
+            "GetExchangeAnnouncementsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetExchangeAnnouncementsResponse"
+                        }
+                    }
+                }
+            },
+            "GetExchangeScheduleResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetExchangeScheduleResponse"
+                        }
+                    }
+                }
+            },
+            "GetExchangeStatusResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ExchangeStatus"
+                        }
+                    }
+                }
+            },
+            "GetFillsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetFillsResponse"
+                        }
+                    }
+                }
+            },
+            "GetMarketCandlesticksResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetMarketCandlesticksResponse"
+                        }
+                    }
+                }
+            },
+            "GetMarketOrderbookResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetMarketOrderbookResponse"
+                        }
+                    }
+                }
+            },
+            "GetMarketResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetMarketResponse"
+                        }
+                    }
+                }
+            },
+            "GetMarketsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetMarketsResponse"
+                        }
+                    }
+                }
+            },
+            "GetOrderResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetOrderResponse"
+                        }
+                    }
+                }
+            },
+            "GetOrdersResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetOrdersResponse"
+                        }
+                    }
+                }
+            },
+            "GetPortfolioSettlementsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetPortfolioSettlementsResponse"
+                        }
+                    }
+                }
+            },
+            "GetPositionsResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetPositionsResponse"
+                        }
+                    }
+                }
+            },
+            "GetSeriesResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetSeriesResponse"
+                        }
+                    }
+                }
+            },
+            "GetUserRestingOrderTotalValueResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/GetUserRestingOrderTotalValueResponse"
+                        }
+                    }
+                }
+            },
+            "JSONError": {
+                "description": "Generic structure for API error responses.",
+                "headers": {
+                    "code": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "details": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "message": {
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "LoginResponse": {
+                "description": "",
+                "headers": {
+                    "Set-Cookie": {
+                        "description": "The access token returned in the response body is set on a cookie named 'sessions' as well.\n\nRequired: true",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/LoginResponse"
+                        }
+                    }
+                }
+            },
+            "PublicTradesGetResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/PublicTradesGetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearer_token": {
+                "description": "Let TOKEN be the string value returned on the token field of a successful LoginResponse.\n\n Then the Authorization header should be:\n\nAuthorization: Bearer $TOKEN",
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        },
+        "schemas": {
+            "AmendOrderRequest": {
+                "type": "object",
+                "required": [
+                    "ticker",
+                    "count",
+                    "side",
+                    "action",
+                    "updated_client_order_id",
+                    "client_order_id"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "Specifies if this is a buy or sell order. Cannot be amended and is validated against original order.",
+                        "type": "string",
+                        "x-go-name": "Action"
+                    },
+                    "client_order_id": {
+                        "$ref": "#/components/schemas/ClientOrderID"
+                    },
+                    "count": {
+                        "description": "Number of contracts to be bought or sold. This is the max number of possible filled contracts.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "Count"
+                    },
+                    "no_price": {
+                        "description": "Submitting price of the No side of the trade, in cents.\nExactly one of yes_price and no_price must be passed. If both prices are passed, return 400.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "side": {
+                        "description": "Specifies if this is a 'yes' or 'no' order. Cannot be amended and is validated against original order.",
+                        "type": "string",
+                        "x-go-name": "Side"
+                    },
+                    "ticker": {
+                        "description": "The ticker of the market the order will be placed in. Cannot be amended and is validated against original order.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "updated_client_order_id": {
+                        "$ref": "#/components/schemas/ClientOrderID"
+                    },
+                    "yes_price": {
+                        "description": "Submitting price of the Yes side of the trade, in cents.\nExactly one of yes_price and no_price must be passed. If both prices are passed, return 400.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "AmendOrderResponse": {
+                "type": "object",
+                "title": "Response to an attempt to amend an order's price or total fillable count.",
+                "required": [
+                    "order"
+                ],
+                "properties": {
+                    "old_order": {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Announcement": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "message",
+                    "delivery_time",
+                    "status"
+                ],
+                "properties": {
+                    "delivery_time": {
+                        "description": "The time the announcement was delivered.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-go-name": "DeliveryTime"
+                    },
+                    "message": {
+                        "description": "The message contained within the announcement.",
+                        "type": "string",
+                        "x-go-name": "Message"
+                    },
+                    "status": {
+                        "description": "The current status of this announcement.\ninfo AnnouncementTypeInfo\nwarning AnnouncementTypeWarning\nerror AnnouncementTypeError\n AnnouncementTypeUnknown",
+                        "type": "string",
+                        "enum": [
+                            "info",
+                            "warning",
+                            "error",
+                            ""
+                        ],
+                        "x-go-name": "Status"
+                    },
+                    "type": {
+                        "description": "The type of the announcement.\ninfo AnnouncementTypeInfo\nwarning AnnouncementTypeWarning\nerror AnnouncementTypeError\n AnnouncementTypeUnknown",
+                        "type": "string",
+                        "enum": [
+                            "info",
+                            "warning",
+                            "error",
+                            ""
+                        ],
+                        "x-go-name": "Type"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/exchange_metadata"
+            },
+            "BatchCancelOrdersIndividualResponse": {
+                "description": "Response for cancelling a batch of orders",
+                "type": "object",
+                "required": [
+                    "reduced_by"
+                ],
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/JSONError"
+                    },
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    "order_id": {
+                        "description": "Optional order_id to identify the orders that errored.",
+                        "type": "string",
+                        "format": "uuid",
+                        "x-go-name": "OrderId"
+                    },
+                    "reduced_by": {
+                        "description": "ReducedBy is how much the count of the order was reduced by because of this operation.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "ReducedBy"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BatchCancelOrdersRequest": {
+                "description": "Request for cancelling a batch of orders",
+                "type": "object",
+                "required": [
+                    "ids"
+                ],
+                "properties": {
+                    "ids": {
+                        "description": "An array of order IDs to cancel.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "x-go-name": "OrderIds"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BatchCancelOrdersResponse": {
+                "type": "object",
+                "title": "Response for cancelling a batch of orders.",
+                "required": [
+                    "orders"
+                ],
+                "properties": {
+                    "orders": {
+                        "description": "An array of responses corresponding to the orders in the request.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BatchCancelOrdersIndividualResponse"
+                        },
+                        "x-go-name": "Orders"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BatchCreateOrdersIndividualResponse": {
+                "type": "object",
+                "title": "Response indicating the status of a single order from a batch.",
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/JSONError"
+                    },
+                    "order": {
+                        "$ref": "#/components/schemas/OrderConfirmation"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BatchCreateOrdersRequest": {
+                "description": "Request for submitting a batch of orders",
+                "type": "object",
+                "required": [
+                    "orders"
+                ],
+                "properties": {
+                    "orders": {
+                        "description": "An array of individual orders to place.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateOrderRequest"
+                        },
+                        "x-go-name": "Orders"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BatchCreateOrdersResponse": {
+                "type": "object",
+                "title": "Response for submitting a batch of orders.",
+                "required": [
+                    "orders"
+                ],
+                "properties": {
+                    "orders": {
+                        "description": "An array of responses corresponding to orders in the request.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BatchCreateOrdersIndividualResponse"
+                        },
+                        "x-go-name": "Orders"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "BidAskDistribution": {
+                "type": "object",
+                "required": [
+                    "open",
+                    "low",
+                    "high",
+                    "close"
+                ],
+                "properties": {
+                    "close": {
+                        "description": "Offer price on the market at the end of the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Close"
+                    },
+                    "high": {
+                        "description": "Highest offer price on the market during the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "High"
+                    },
+                    "low": {
+                        "description": "Lowest offer price on the market during the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Low"
+                    },
+                    "open": {
+                        "description": "Offer price on the market at the start of the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Open"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "CancelOrderResponse": {
+                "description": "Response to an attempt to cancel an order\nincluding the order itself and its last status.",
+                "type": "object",
+                "required": [
+                    "order",
+                    "reduced_by"
+                ],
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    "reduced_by": {
+                        "description": "ReducedBy is how much the count of the order was reduced by because of this operation.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "ReducedBy"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "ClientOrderID": {
+                "type": "string",
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/types"
+            },
+            "CreateOrderRequest": {
+                "description": "Request for submitting an order",
+                "type": "object",
+                "required": [
+                    "ticker",
+                    "count",
+                    "side",
+                    "type",
+                    "action",
+                    "client_order_id"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "Specifies if this is a buy or sell order.",
+                        "type": "string",
+                        "x-go-name": "Action"
+                    },
+                    "buy_max_cost": {
+                        "description": "If type = market and action = buy, buy_max_cost represents the maximum cents that can be spent to acquire a position.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "BuyMaxCostCents"
+                    },
+                    "client_order_id": {
+                        "$ref": "#/components/schemas/ClientOrderID"
+                    },
+                    "count": {
+                        "description": "Number of contracts to be bought or sold.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "Count"
+                    },
+                    "expiration_ts": {
+                        "description": "Expiration time of the order, in unix seconds.\n\nIf this is not supplied, the order won't expire until explicitly cancelled.\nThis is also known as Good 'Till Cancelled (GTC).\n\nIf the time is in the past, the order will attempt to partially or completely fill\nand the remaining unfilled quantity will be cancelled. This is also known as Immediate-or-Cancel (IOC).\n\nIf the time is in the future, the remaining unfilled quantity order will expire\nat the specified time.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "ExpirationTs"
+                    },
+                    "no_price": {
+                        "description": "Submitting price of the No side of the trade, in cents.\nExactly one of yes_price and no_price must be passed. If both prices are passed, return 400.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "sell_position_floor": {
+                        "description": "SellPositionFloor will not let you flip position for a market order if set to 0.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "SellPositionFloor"
+                    },
+                    "side": {
+                        "description": "Specifies if this is a 'yes' or 'no' order.",
+                        "type": "string",
+                        "x-go-name": "Side"
+                    },
+                    "ticker": {
+                        "description": "The ticker of the market the order will be placed in.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "type": {
+                        "description": "Specifies if this is a \"market\" or a \"limit\" order.\nNote that either the Yes Price or the No Price must be provided for limit orders.",
+                        "type": "string",
+                        "x-go-name": "OrderType"
+                    },
+                    "yes_price": {
+                        "description": "Submitting price of the Yes side of the trade, in cents.\nExactly one of yes_price and no_price must be passed. If both prices are passed, return 400.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "CreateOrderResponse": {
+                "description": "Response for submitting an order containing the order details\nand the order's last status.",
+                "type": "object",
+                "required": [
+                    "order"
+                ],
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/OrderConfirmation"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "DailySchedule": {
+                "type": "object",
+                "properties": {
+                    "close_time": {
+                        "type": "string",
+                        "x-go-name": "CloseTime"
+                    },
+                    "open_time": {
+                        "type": "string",
+                        "x-go-name": "OpenTime"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/exchange_metadata"
+            },
+            "DecreaseOrderRequest": {
+                "type": "object",
+                "title": "Request to decrease an order's count.",
+                "properties": {
+                    "reduce_by": {
+                        "description": "Number of contracts to decrease the order's count by.\nOne of reduce_by or reduce_to must be provided.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "ReduceBy"
+                    },
+                    "reduce_to": {
+                        "description": "Number of contracts to decrease the order to.  If the orders remaining count is lower, it does nothing.\nOne of reduce_by or reduce_to must be provided",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "ReduceTo"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "DecreaseOrderResponse": {
+                "type": "object",
+                "title": "Response to an attempt to decrease an order's count including the order itself and the number of resting contracts remaining in the order.",
+                "required": [
+                    "order"
+                ],
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "EventData": {
+                "type": "object",
+                "required": [
+                    "event_ticker",
+                    "series_ticker",
+                    "sub_title",
+                    "title",
+                    "mutually_exclusive",
+                    "category"
+                ],
+                "properties": {
+                    "category": {
+                        "description": "Deprecated: Event category. Use the series level property instead.",
+                        "type": "string",
+                        "x-go-name": "Category"
+                    },
+                    "event_ticker": {
+                        "description": "Unique identifier for events.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "markets": {
+                        "description": "The markets that are linked to this event. Will be filled only if the query parameter \"with_nested_markets\" is equal \"true\".",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Market"
+                        },
+                        "x-go-name": "Markets"
+                    },
+                    "mutually_exclusive": {
+                        "description": "If true then the event is mutually exclusive.",
+                        "type": "boolean",
+                        "x-go-name": "MutuallyExclusive"
+                    },
+                    "series_ticker": {
+                        "description": "Unique identifier for series.",
+                        "type": "string",
+                        "x-go-name": "SeriesTicker"
+                    },
+                    "strike_date": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "strike_period": {
+                        "description": "The strike period for this event. This will be filled when the event strike is not a date.\nIf it is a date then the 'strike_date' field should be filled instead.",
+                        "type": "string",
+                        "x-go-name": "StrikePeriod"
+                    },
+                    "sub_title": {
+                        "description": "Shortened title.",
+                        "type": "string",
+                        "x-go-name": "SubTitle"
+                    },
+                    "title": {
+                        "description": "Event title.",
+                        "type": "string",
+                        "x-go-name": "Title"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "EventPosition": {
+                "description": "MarketPosition is your accumulated position on a specific market considering all orders and trades on that market.",
+                "type": "object",
+                "title": "EventPosition",
+                "required": [
+                    "event_ticker",
+                    "total_cost",
+                    "event_exposure",
+                    "realized_pnl",
+                    "resting_order_count",
+                    "fees_paid"
+                ],
+                "properties": {
+                    "event_exposure": {
+                        "description": "Cost of the aggregate event position in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "EventExposure"
+                    },
+                    "event_ticker": {
+                        "description": "Unique identifier for events.",
+                        "type": "string",
+                        "x-go-name": "EventTicker"
+                    },
+                    "fees_paid": {
+                        "description": "Fees paid on fill orders, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "FeesPaid"
+                    },
+                    "realized_pnl": {
+                        "description": "Locked in profit and loss, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "RealizedPnL"
+                    },
+                    "resting_order_count": {
+                        "description": "Aggregate size of resting orders in contract units.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "RestingOrderCount"
+                    },
+                    "total_cost": {
+                        "description": "Total spent on this event in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TotalCost"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "ExchangeStatus": {
+                "type": "object",
+                "required": [
+                    "exchange_active",
+                    "trading_active"
+                ],
+                "properties": {
+                    "exchange_active": {
+                        "description": "False if the core Kalshi exchange is no longer taking any state changes at all. This includes but is not limited to trading, new users, and transfers. True unless we are under maintenance.",
+                        "type": "boolean",
+                        "x-go-name": "ExchangeActive"
+                    },
+                    "trading_active": {
+                        "description": "True if we are currently permitting trading on the exchange. This is true during trading hours and false outside exchange hours. Kalshi reserves the right to pause at any time in case issues are detected.",
+                        "type": "boolean",
+                        "x-go-name": "TradingActive"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Fill": {
+                "description": "Represents a trade from the trader's perspective.\n\nA trade is created whenever an order is fully or partially matched,\nso there can be multiple trades with the same order ID.\nIt is guaranteed that the sum of the **count** field for all the trades with the same order ID\nshouldn't exceed the **place_count** on the order.",
+                "type": "object",
+                "title": "Fill",
+                "required": [
+                    "trade_id",
+                    "ticker",
+                    "order_id",
+                    "side",
+                    "action",
+                    "count",
+                    "yes_price",
+                    "no_price",
+                    "is_taker",
+                    "created_time"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "Specifies if this is a buy or sell order.\nbuy OrderActionBuy\nsell OrderActionSell\n OrderActionUnknown",
+                        "type": "string",
+                        "enum": [
+                            "buy",
+                            "sell",
+                            ""
+                        ],
+                        "x-go-name": "OrderAction"
+                    },
+                    "count": {
+                        "description": "Number of contracts to be bought or sold.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "Count"
+                    },
+                    "created_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "is_taker": {
+                        "description": "If true then this fill was a taker.",
+                        "type": "boolean",
+                        "x-go-name": "IsTaker"
+                    },
+                    "no_price": {
+                        "description": "Fill price for the no side in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "order_id": {
+                        "description": "Unique identifier for orders.",
+                        "type": "string",
+                        "format": "uuid",
+                        "x-go-name": "OrderId"
+                    },
+                    "side": {
+                        "description": "Specifies if this is a 'yes' or 'no' fill.\nyes SIDE_YES\nno SIDE_NO\n SIDE_UNSET",
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no",
+                            ""
+                        ],
+                        "x-go-name": "OrderSide"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "MarketTicker"
+                    },
+                    "trade_id": {
+                        "description": "Unique identifier for fills.",
+                        "type": "string",
+                        "format": "uuid",
+                        "x-go-name": "Id"
+                    },
+                    "yes_price": {
+                        "description": "Fill price for the yes side in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Fills": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Fill"
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetBalanceResponse": {
+                "type": "object",
+                "required": [
+                    "balance"
+                ],
+                "properties": {
+                    "balance": {
+                        "description": "Member available balance in dollar cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Balance"
+                    },
+                    "payout": {
+                        "description": "Member available payout in dollar cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Payout"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetEventResponse": {
+                "type": "object",
+                "required": [
+                    "event",
+                    "markets"
+                ],
+                "properties": {
+                    "event": {
+                        "$ref": "#/components/schemas/EventData"
+                    },
+                    "markets": {
+                        "description": "Data for the markets in this event.\nThis field is deprecated in favour of the \"markets\" field inside the event.\nWhich will be filled with the same value if you use the query parameter \"with_nested_markets=true\".",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Market"
+                        },
+                        "x-go-name": "Markets"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetEventsResponse": {
+                "type": "object",
+                "required": [
+                    "events"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EventData"
+                        },
+                        "x-go-name": "Events"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetExchangeAnnouncementsResponse": {
+                "type": "object",
+                "required": [
+                    "announcements"
+                ],
+                "properties": {
+                    "announcements": {
+                        "description": "A list of exchange-wide announcements.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Announcement"
+                        },
+                        "x-go-name": "Announcements"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetExchangeScheduleResponse": {
+                "type": "object",
+                "required": [
+                    "schedule"
+                ],
+                "properties": {
+                    "schedule": {
+                        "$ref": "#/components/schemas/Schedule"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetFillsResponse": {
+                "type": "object",
+                "required": [
+                    "fills"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "fills": {
+                        "$ref": "#/components/schemas/Fills"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetMarketCandlesticksResponse": {
+                "type": "object",
+                "required": [
+                    "ticker",
+                    "candlesticks"
+                ],
+                "properties": {
+                    "candlesticks": {
+                        "description": "Unique identifier for the market.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MarketCandlestick"
+                        },
+                        "x-go-name": "Candlesticks"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for the market.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetMarketOrderbookResponse": {
+                "type": "object",
+                "required": [
+                    "orderbook"
+                ],
+                "properties": {
+                    "orderbook": {
+                        "$ref": "#/components/schemas/OrderBook"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetMarketResponse": {
+                "type": "object",
+                "required": [
+                    "market"
+                ],
+                "properties": {
+                    "market": {
+                        "$ref": "#/components/schemas/Market"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetMarketsResponse": {
+                "type": "object",
+                "required": [
+                    "markets"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "markets": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Market"
+                        },
+                        "x-go-name": "Markets"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetOrderResponse": {
+                "type": "object",
+                "required": [
+                    "order"
+                ],
+                "properties": {
+                    "order": {
+                        "$ref": "#/components/schemas/Order"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetOrdersResponse": {
+                "type": "object",
+                "required": [
+                    "orders"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "orders": {
+                        "$ref": "#/components/schemas/OrderList"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetPortfolioSettlementsResponse": {
+                "type": "object",
+                "required": [
+                    "settlements"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "settlements": {
+                        "description": "Settlement summaries for all markets the user participated in",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Settlement"
+                        },
+                        "x-go-name": "Settlements"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetPositionsResponse": {
+                "type": "object",
+                "required": [
+                    "market_positions",
+                    "event_positions"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "event_positions": {
+                        "description": "List of event positions.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EventPosition"
+                        },
+                        "x-go-name": "EventPositions"
+                    },
+                    "market_positions": {
+                        "description": "List of market positions.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MarketPosition"
+                        },
+                        "x-go-name": "MarketPositions"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetSeriesResponse": {
+                "type": "object",
+                "properties": {
+                    "series": {
+                        "$ref": "#/components/schemas/Series"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "GetUserRestingOrderTotalValueResponse": {
+                "type": "object",
+                "required": [
+                    "total_value"
+                ],
+                "properties": {
+                    "total_value": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TotalValue"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "JSONError": {
+                "type": "object",
+                "title": "Generic structure for API error responses.",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "x-go-name": "Code"
+                    },
+                    "details": {
+                        "type": "string",
+                        "x-go-name": "Details"
+                    },
+                    "message": {
+                        "type": "string",
+                        "x-go-name": "Message"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/api"
+            },
+            "LoginRequest": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "description": "Email should be used as login identification credentials.",
+                        "type": "string",
+                        "format": "email",
+                        "x-go-name": "Email"
+                    },
+                    "password": {
+                        "description": "Password defined in the first step of the sign-up.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 6,
+                        "x-go-name": "Password"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "LoginResponse": {
+                "description": "The `token` field must be passed in future requests as a header.",
+                "type": "object",
+                "title": "LoginResponse is returned from a login request.",
+                "required": [
+                    "token"
+                ],
+                "properties": {
+                    "member_id": {
+                        "description": "Member's user ID.",
+                        "type": "string",
+                        "format": "uuid",
+                        "x-go-name": "MemberId"
+                    },
+                    "token": {
+                        "description": "Access token for a member role session in the API.",
+                        "type": "string",
+                        "x-go-name": "Token"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "MaintenanceWindow": {
+                "type": "object",
+                "properties": {
+                    "end_datetime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-go-name": "EndDatetime"
+                    },
+                    "start_datetime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-go-name": "StartDatetime"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/exchange_metadata"
+            },
+            "Market": {
+                "description": "Contains information about a market. Note: for some fields, you should not assume a fixed structure.",
+                "type": "object",
+                "title": "Market",
+                "required": [
+                    "ticker",
+                    "event_ticker",
+                    "market_type",
+                    "title",
+                    "subtitle",
+                    "yes_sub_title",
+                    "no_sub_title",
+                    "open_time",
+                    "close_time",
+                    "expiration_time",
+                    "latest_expiration_time",
+                    "settlement_timer_seconds",
+                    "status",
+                    "response_price_units",
+                    "notional_value",
+                    "tick_size",
+                    "yes_bid",
+                    "yes_ask",
+                    "no_bid",
+                    "no_ask",
+                    "last_price",
+                    "previous_yes_bid",
+                    "previous_yes_ask",
+                    "previous_price",
+                    "volume",
+                    "volume_24h",
+                    "liquidity",
+                    "open_interest",
+                    "result",
+                    "can_close_early",
+                    "expiration_value",
+                    "category",
+                    "risk_limit_cents",
+                    "rules_primary",
+                    "rules_secondary"
+                ],
+                "properties": {
+                    "can_close_early": {
+                        "description": "If true then this market can close earlier then the time provided on close_time.",
+                        "type": "boolean",
+                        "x-go-name": "CanCloseEarly"
+                    },
+                    "cap_strike": {
+                        "$ref": "#/components/schemas/Number"
+                    },
+                    "category": {
+                        "description": "Category for this market.",
+                        "type": "string",
+                        "x-go-name": "Category"
+                    },
+                    "close_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "custom_strike": {
+                        "description": "Expiration value for each target that leads to a YES settlement.\n\nFilled only if \"strike_type\" is \"custom\".",
+                        "type": "object",
+                        "additionalProperties": {},
+                        "x-go-name": "CustomStrike"
+                    },
+                    "event_ticker": {
+                        "description": "Unique identifier for events.",
+                        "type": "string",
+                        "x-go-name": "EventTicker"
+                    },
+                    "expected_expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "expiration_value": {
+                        "description": "The value that was considered for the settlement.",
+                        "type": "string",
+                        "x-go-name": "ExpirationValue"
+                    },
+                    "fee_waiver_expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "floor_strike": {
+                        "$ref": "#/components/schemas/Number"
+                    },
+                    "functional_strike": {
+                        "description": "Mapping from expiration values to settlement values of the YES/LONG side, in centi-cents.\n\nFilled only if \"market_type\" is \"scalar\" and \"strike_type\" is \"functional\".\n\nEx. f(x) = max(0, min(10000, 500 * x))\n\nA scalar market with this functional strike and an expiration value of 10 would have a settlement value on the YES/LONG side of 5000 centi cents.",
+                        "type": "string",
+                        "x-go-name": "FunctionalStrike"
+                    },
+                    "last_price": {
+                        "description": "Price for the last traded yes contract on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "LastPrice"
+                    },
+                    "latest_expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "liquidity": {
+                        "description": "Value for current offers in this market in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Liquidity"
+                    },
+                    "market_type": {
+                        "description": "Identifies the type of market, which affects its payout and structure.\n\nbinary: Every binary market has two sides, YES and NO. If the market's \"payout criterion\" is satisfied, it pays out the notional value to holders of YES. Otherwise, it pays out the notional value to holders of NO.\n\nscalar: Every scalar market has two sides, LONG and SHORT (although these might be referred to as YES/NO in some API endpoints). At settlement, each contract's notional value is split between LONG and SHORT as described in the market rules.",
+                        "x-go-name": "MarketType"
+                    },
+                    "no_ask": {
+                        "description": "Price for the lowest NO sell offer on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoAsk"
+                    },
+                    "no_bid": {
+                        "description": "Price for the highest NO buy offer on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoBid"
+                    },
+                    "no_sub_title": {
+                        "description": "Shortened title for the no side of this market.",
+                        "type": "string",
+                        "x-go-name": "NoSubTitle"
+                    },
+                    "notional_value": {
+                        "description": "The total value of a single contract at settlement.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NotionalValue"
+                    },
+                    "open_interest": {
+                        "description": "Number of contracts bought on this market disconsidering netting.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "DollarOpenInterest"
+                    },
+                    "open_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "previous_price": {
+                        "description": "Price for the last traded yes contract on this market a day ago.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "PreviousPrice"
+                    },
+                    "previous_yes_ask": {
+                        "description": "Price for the lowest YES sell offer on this market a day ago.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "PreviousYesAsk"
+                    },
+                    "previous_yes_bid": {
+                        "description": "Price for the highest YES buy offer on this market a day ago.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "PreviousYesBid"
+                    },
+                    "response_price_units": {
+                        "description": "The units used to express all price related fields in this response, including: prices, bids/asks, liquidity, notional and settlement values.\nusd_cent MONEY_UNIT_USD_CENT\nusd_centi_cent MONEY_UNIT_USD_CENTI_CENT",
+                        "type": "string",
+                        "enum": [
+                            "usd_cent",
+                            "usd_centi_cent"
+                        ],
+                        "x-go-name": "ResponsePriceUnits"
+                    },
+                    "result": {
+                        "description": "Settlement result for this market. Filled only after determination. Omitted for scalar markets.\n MARKET_RESULT_NO_RESULT\nyes MARKET_RESULT_YES\nno MARKET_RESULT_NO\nvoid MARKET_RESULT_VOID\nall_no RANGED_MARKET_RESULT_ALL_NO\nall_yes RANGED_MARKET_RESULT_ALL_YES",
+                        "type": "string",
+                        "enum": [
+                            "",
+                            "yes",
+                            "no",
+                            "void",
+                            "all_no",
+                            "all_yes"
+                        ],
+                        "x-go-name": "Result"
+                    },
+                    "risk_limit_cents": {
+                        "description": "Risk limit for this market in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "RiskLimitCents"
+                    },
+                    "rules_primary": {
+                        "description": "A plain language description of the most important market terms.",
+                        "type": "string",
+                        "x-go-name": "RulesPrimary"
+                    },
+                    "rules_secondary": {
+                        "description": "A plain language description of secondary market terms.",
+                        "type": "string",
+                        "x-go-name": "RulesSecondary"
+                    },
+                    "settlement_timer_seconds": {
+                        "description": "The amount of time after determination that the market settles (pays out).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "SettlementTimerSeconds"
+                    },
+                    "settlement_value": {
+                        "description": "The settlement value of the YES/LONG side of the contract. Only filled after determination.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "SettlementValue"
+                    },
+                    "status": {
+                        "description": "Represents the current status of a market.",
+                        "x-go-name": "Status"
+                    },
+                    "strike_type": {
+                        "description": "Strike type defines how the market strike (expiration value) is defined and evaluated.\n\ngreater: It will be a single number. For YES outcome the expiration value should be greater than \"floor_strike\".\n\ngreater_or_equal: It will be a single number. For YES outcome the expiration value should be greater OR EQUAL than \"floor_strike\".\n\nless: It will be a single number. For YES outcome the expiration value should be less than \"cap_strike\".\n\nless_or_equal: It will be a single number. For YES outcome the expiration value should be less OR EQUAL than \"cap_strike\".\n\nbetween: It will be two numbers. For YES outcome the expiration value should be between inclusive \"floor_strike\" and \"cap_strike\", that means expiration value needs to be greater or equal \"floor_strike\" and less or equal \"cap_strike\".\n\nfunctional: For scalar markets only. A mapping from expiration values to settlement values of the YES/LONG side will be in \"functional_strike\".\n\ncustom: It will be one or more non-numerical values. For YES outcome the expiration values should be equal to the values in \"custom_strike\".\nunknown MarketStrikeTypeUnknown\ngreater MarketStrikeTypeGreater\nless MarketStrikeTypeLess\ngreater_or_equal MarketStrikeTypeGreaterOrEqual\nless_or_equal MarketStrikeTypeLessOrEqual\nbetween MarketStrikeTypeBetween\nfunctional MarketStrikeTypeFunctional\ncustom MarketStrikeTypeCustom",
+                        "type": "string",
+                        "enum": [
+                            "unknown",
+                            "greater",
+                            "less",
+                            "greater_or_equal",
+                            "less_or_equal",
+                            "between",
+                            "functional",
+                            "custom"
+                        ],
+                        "x-go-name": "StrikeType"
+                    },
+                    "subtitle": {
+                        "description": "Deprecated: Shortened title for this market. Use \"yes_sub_title\" or \"no_sub_title\" instead.",
+                        "type": "string",
+                        "x-go-name": "Subtitle"
+                    },
+                    "tick_size": {
+                        "description": "The minimum price movement in the market. All limit order prices must be in denominations of the tick size.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TickSize"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "title": {
+                        "description": "Full title describing this market.",
+                        "type": "string",
+                        "x-go-name": "Title"
+                    },
+                    "volume": {
+                        "description": "Number of contracts bought on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "DollarVolume"
+                    },
+                    "volume_24h": {
+                        "description": "Number of contracts bought on this market in the past day.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "DollarRecentVolume"
+                    },
+                    "yes_ask": {
+                        "description": "Price for the lowest YES sell offer on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesAsk"
+                    },
+                    "yes_bid": {
+                        "description": "Price for the highest YES buy offer on this market.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesBid"
+                    },
+                    "yes_sub_title": {
+                        "description": "Shortened title for the yes side of this market.",
+                        "type": "string",
+                        "x-go-name": "YesSubTitle"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "MarketCandlestick": {
+                "type": "object",
+                "required": [
+                    "end_period_ts",
+                    "yes_bid",
+                    "yes_ask",
+                    "price",
+                    "volume",
+                    "open_interest"
+                ],
+                "properties": {
+                    "end_period_ts": {
+                        "description": "Unix timestamp for the inclusive end of the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "EndPeriodTs"
+                    },
+                    "open_interest": {
+                        "description": "Number of contracts bought on the market by end of the candlestick period (end_period_ts).",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "OpenInterest"
+                    },
+                    "price": {
+                        "$ref": "#/components/schemas/PriceDistribution"
+                    },
+                    "volume": {
+                        "description": "Number of contracts bought on the market during the candlestick period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Volume"
+                    },
+                    "yes_ask": {
+                        "$ref": "#/components/schemas/BidAskDistribution"
+                    },
+                    "yes_bid": {
+                        "$ref": "#/components/schemas/BidAskDistribution"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "MarketPosition": {
+                "description": "MarketPosition is your accumulated position on a specific market considering all orders and trades.",
+                "type": "object",
+                "title": "MarketPosition",
+                "required": [
+                    "ticker",
+                    "total_traded",
+                    "position",
+                    "market_exposure",
+                    "realized_pnl",
+                    "resting_orders_count",
+                    "fees_paid",
+                    "last_updated_ts"
+                ],
+                "properties": {
+                    "fees_paid": {
+                        "description": "Fees paid on fill orders, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "FeesPaid"
+                    },
+                    "last_updated_ts": {
+                        "description": "last time the position is updated.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-go-name": "LastUpdatedTs"
+                    },
+                    "market_exposure": {
+                        "description": "Cost of the aggregate market position in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "MarketExposure"
+                    },
+                    "position": {
+                        "description": "Number of contracts bought in this market. Negative means NO contracts and positive means YES contracts.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "Position"
+                    },
+                    "realized_pnl": {
+                        "description": "Locked in profit and loss, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "RealizedPNL"
+                    },
+                    "resting_orders_count": {
+                        "description": "Aggregate size of resting orders in contract units.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "RestingOrdersCount"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for the market.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "total_traded": {
+                        "description": "Total spent on this market in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TotalTraded"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Number": {
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/types",
+                "type": "number"
+            },
+            "Order": {
+                "description": "Represents member orders in the API.\n\nWhen an order is matched multiple trades can be created this can be tracked by looking into the trade.orderId field.",
+                "type": "object",
+                "title": "Order",
+                "required": [
+                    "order_id",
+                    "ticker",
+                    "status",
+                    "yes_price",
+                    "no_price",
+                    "action",
+                    "side",
+                    "type",
+                    "client_order_id"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "Representing trade action; currently supports buy and sell.\nbuy OrderActionBuy\nsell OrderActionSell\n OrderActionUnknown",
+                        "type": "string",
+                        "enum": [
+                            "buy",
+                            "sell",
+                            ""
+                        ],
+                        "x-go-name": "OrderAction"
+                    },
+                    "amend_count": {
+                        "description": "The amendment delta throughout the lifecycle of the order (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "AmendCount"
+                    },
+                    "amend_taker_fill_count": {
+                        "description": "The size of filled taker orders (contract units) as a result of an amendment",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "AmendTakerFillCount"
+                    },
+                    "client_order_id": {
+                        "$ref": "#/components/schemas/ClientOrderID"
+                    },
+                    "close_cancel_count": {
+                        "description": "The size of resting orders canceled because of market close (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "CloseCancelCount"
+                    },
+                    "created_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "decrease_count": {
+                        "description": "The reduction in the size of resting for orders (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "DecreaseCount"
+                    },
+                    "expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "fcc_cancel_count": {
+                        "description": "The size of resting contracts canceled because of exchange operations (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "FccCancelCount"
+                    },
+                    "last_update_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "maker_fees": {
+                        "description": "Fees paid on filled maker contracts, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "MakerFees"
+                    },
+                    "maker_fill_cost": {
+                        "description": "The cost of filled maker orders in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "MakerFillCost"
+                    },
+                    "maker_fill_count": {
+                        "description": "The size of filled maker orders (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "MakerFillCount"
+                    },
+                    "no_price": {
+                        "description": "Submitting price of the No side of the trade, in cents.\nExactly one of yes_price and no_price must be passed. If both prices are passed, return 400.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "order_id": {
+                        "description": "Unique identifier for orders.",
+                        "type": "string",
+                        "format": "uuid4",
+                        "x-go-name": "Id"
+                    },
+                    "place_count": {
+                        "description": "the size of placed maker orders (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "PlaceCount"
+                    },
+                    "queue_position": {
+                        "description": "Position in the priority queue at a given price level",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "QueuePosition"
+                    },
+                    "remaining_count": {
+                        "description": "The size of the remaining resting orders (contract units).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "RemainingCount"
+                    },
+                    "side": {
+                        "description": "Representing direction of the order; currently supports yes and no.\nyes SIDE_YES\nno SIDE_NO\n SIDE_UNSET",
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no",
+                            ""
+                        ],
+                        "x-go-name": "OrderSide"
+                    },
+                    "status": {
+                        "description": "The current status of this order.\nresting OrderStatusResting\ncanceled OrderStatusCanceled\nexecuted OrderStatusExecuted\npending OrderStatusPending  Will be used for order queue to represent orders that haven't been matched yet.",
+                        "type": "string",
+                        "enum": [
+                            "resting",
+                            "canceled",
+                            "executed",
+                            "pending"
+                        ],
+                        "x-go-name": "Status"
+                    },
+                    "taker_fees": {
+                        "description": "Fees paid on filled taker contracts, in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TakerFees"
+                    },
+                    "taker_fill_cost": {
+                        "description": "The cost of filled taker orders in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "TakerFillCost"
+                    },
+                    "taker_fill_count": {
+                        "description": "The size of filled taker orders (contract units)",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "TakerFillCount"
+                    },
+                    "taker_self_trade_cancel_count": {
+                        "description": "The reduction in the size of a taker order due to self-trade prevention cancellation (contract units).\nWill be zero for orders placed before the introduction of this field.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "TakerSelfTradeCancelCount"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "type": {
+                        "description": "Representing order type; currently supports \"market\" and \"limit\".\n OrderTypeUnknown\nmarket OrderTypeMarket\nlimit OrderTypeLimit",
+                        "type": "string",
+                        "enum": [
+                            "",
+                            "market",
+                            "limit"
+                        ],
+                        "x-go-name": "OrderType"
+                    },
+                    "user_id": {
+                        "type": "string",
+                        "format": "uuid4",
+                        "x-go-name": "UserId"
+                    },
+                    "yes_price": {
+                        "description": "The yes price for this order in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "OrderBook": {
+                "description": "Contains the number of pending resting order for each price on a specific market.",
+                "type": "object",
+                "title": "OrderBook",
+                "required": [
+                    "yes",
+                    "no"
+                ],
+                "properties": {
+                    "no": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PriceLevel"
+                        },
+                        "x-go-name": "No",
+                        "example": [
+                            [
+                                55,
+                                200
+                            ],
+                            [
+                                50,
+                                330
+                            ]
+                        ]
+                    },
+                    "yes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PriceLevel"
+                        },
+                        "x-go-name": "Yes",
+                        "example": [
+                            [
+                                25,
+                                150
+                            ],
+                            [
+                                32,
+                                450
+                            ],
+                            [
+                                35,
+                                256
+                            ]
+                        ]
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "OrderConfirmation": {
+                "description": "Represents the confirmation for an order that was just created.",
+                "type": "object",
+                "title": "OrderConfirmation",
+                "required": [
+                    "order_id",
+                    "ticker",
+                    "status",
+                    "yes_price",
+                    "no_price",
+                    "action",
+                    "side",
+                    "type",
+                    "client_order_id"
+                ],
+                "properties": {
+                    "action": {
+                        "description": "Representing trade action; currently supports buy and sell.\nbuy OrderActionBuy\nsell OrderActionSell\n OrderActionUnknown",
+                        "type": "string",
+                        "enum": [
+                            "buy",
+                            "sell",
+                            ""
+                        ],
+                        "x-go-name": "OrderAction"
+                    },
+                    "client_order_id": {
+                        "$ref": "#/components/schemas/ClientOrderID"
+                    },
+                    "created_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "expiration_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "no_price": {
+                        "description": "The no price for this order in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "order_id": {
+                        "description": "Unique identifier for orders.",
+                        "type": "string",
+                        "format": "uuid4",
+                        "x-go-name": "Id"
+                    },
+                    "side": {
+                        "description": "Representing direction of the order; currently supports yes and no.\nyes SIDE_YES\nno SIDE_NO\n SIDE_UNSET",
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no",
+                            ""
+                        ],
+                        "x-go-name": "OrderSide"
+                    },
+                    "status": {
+                        "description": "The current status of a given order.\nresting OrderStatusResting\ncanceled OrderStatusCanceled\nexecuted OrderStatusExecuted\npending OrderStatusPending  Will be used for order queue to represent orders that haven't been matched yet.",
+                        "type": "string",
+                        "enum": [
+                            "resting",
+                            "canceled",
+                            "executed",
+                            "pending"
+                        ],
+                        "x-go-name": "Status"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "type": {
+                        "description": "Representing order type; currently supports \"market\" and \"limit\".\n OrderTypeUnknown\nmarket OrderTypeMarket\nlimit OrderTypeLimit",
+                        "type": "string",
+                        "enum": [
+                            "",
+                            "market",
+                            "limit"
+                        ],
+                        "x-go-name": "OrderType"
+                    },
+                    "user_id": {
+                        "type": "string",
+                        "format": "uuid4",
+                        "x-go-name": "UserId"
+                    },
+                    "yes_price": {
+                        "description": "The yes price for this order in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "OrderList": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/Order"
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "OutputTime": {
+                "description": "Date and time in the ISO 8601 spec. Example: 2022-11-30T15:00:00Z",
+                "type": "string",
+                "format": "date-time",
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "PriceDistribution": {
+                "type": "object",
+                "properties": {
+                    "close": {
+                        "description": "Last traded YES contract price on the market during the candlestick period. May be empty if there was no trade during the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Close"
+                    },
+                    "high": {
+                        "description": "Highest traded YES contract price on the market during the candlestick period. May be empty if there was no trade during the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "High"
+                    },
+                    "low": {
+                        "description": "Lowest traded YES contract price on the market during the candlestick period. May be empty if there was no trade during the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Low"
+                    },
+                    "mean": {
+                        "description": "Mean traded YES contract price on the market during the candlestick period. May be empty if there was no trade during the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Mean"
+                    },
+                    "open": {
+                        "description": "First traded YES contract price on the market during the candlestick period. May be empty if there was no trade during the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Open"
+                    },
+                    "previous": {
+                        "description": "Last traded YES contract price on the market before the candlestick period. May be empty if there were no trades before the period.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Previous"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "PriceLevel": {
+                "description": "PriceLevel is the state of a market with respect to a specific price,\nrepresented as an array of 2 integer values $(p, n)$, where:\n$p$ is the price value, in cents, and\n$n$ is the total number of resting contract at that price among all orders.\n\nFor example: [30, 150] means there are 150 resting contracts at 30 cents.",
+                "type": "array",
+                "title": "PriceLevel",
+                "items": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "PublicTrade": {
+                "description": "Represents a trade that can be displayed publicly. This does not include maker and taker information.\n\nA trade is created whenever an order is fully or partially matched.",
+                "type": "object",
+                "title": "PublicTrade",
+                "required": [
+                    "trade_id",
+                    "ticker",
+                    "count",
+                    "created_time",
+                    "yes_price",
+                    "no_price",
+                    "taker_side"
+                ],
+                "properties": {
+                    "count": {
+                        "description": "Number of contracts to be bought or sold.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-go-name": "Count"
+                    },
+                    "created_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "no_price": {
+                        "description": "No price for this trade in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoPrice"
+                    },
+                    "taker_side": {
+                        "description": "Side for the taker of this trade.\nyes SIDE_YES\nno SIDE_NO\n SIDE_UNSET",
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no"
+                        ],
+                        "x-go-name": "TakerSide"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "trade_id": {
+                        "description": "Unique identifier for this trade.",
+                        "type": "string",
+                        "format": "uuid",
+                        "x-go-name": "TradeId"
+                    },
+                    "yes_price": {
+                        "description": "Yes price for this trade in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesPrice"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "PublicTradeList": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PublicTrade"
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "PublicTradesGetResponse": {
+                "type": "object",
+                "required": [
+                    "trades"
+                ],
+                "properties": {
+                    "cursor": {
+                        "description": "The Cursor represents a pointer to the next page of records in the pagination.\nUse the value returned here in the cursor query parameter for this end-point to get the next page containing limit records.\nAn empty value of this field indicates there is no next page.",
+                        "type": "string",
+                        "x-go-name": "Cursor"
+                    },
+                    "trades": {
+                        "$ref": "#/components/schemas/PublicTradeList"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Schedule": {
+                "type": "object",
+                "required": [
+                    "standard_hours",
+                    "maintenance_windows"
+                ],
+                "properties": {
+                    "maintenance_windows": {
+                        "description": "Scheduled maintenance windows, during which the exchange may be unavailable.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MaintenanceWindow"
+                        },
+                        "x-go-name": "MaintenanceWindows"
+                    },
+                    "standard_hours": {
+                        "$ref": "#/components/schemas/WeeklySchedule"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/exchange_metadata"
+            },
+            "Series": {
+                "description": "Represents a group of events that have the same underlying source.\n\nFor example: Fed interest rate hikes is a series with multiple events, one for each FOMC meeting.",
+                "type": "object",
+                "title": "Series",
+                "required": [
+                    "ticker",
+                    "frequency",
+                    "title",
+                    "category",
+                    "tags",
+                    "settlement_sources",
+                    "contract_url"
+                ],
+                "properties": {
+                    "category": {
+                        "description": "Category specifies the category which this series belongs to.",
+                        "type": "string",
+                        "x-go-name": "Category"
+                    },
+                    "contract_url": {
+                        "description": "ContractUrl provides a direct link to contract terms which govern the series.",
+                        "type": "string",
+                        "x-go-name": "ContractUrl"
+                    },
+                    "frequency": {
+                        "description": "Description of the frequency of the series. There is no fixed value set here, but will be something human-readable like: weekly, daily, one-off.",
+                        "type": "string",
+                        "x-go-name": "Frequency"
+                    },
+                    "settlement_sources": {
+                        "description": "SettlementSources specifies the official sources used for the determination of markets within the series. Methodology is defined in the rulebook.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SettlementSource"
+                        },
+                        "x-go-name": "SettlementSources"
+                    },
+                    "tags": {
+                        "description": "Tags specifies the subjects that this series relates to, multiple series from different categories can have the same tags.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "x-go-name": "Tags"
+                    },
+                    "ticker": {
+                        "description": "Ticker that identifies this series.",
+                        "type": "string",
+                        "x-go-name": "Ticker"
+                    },
+                    "title": {
+                        "description": "Title describing the series. For full context use you should use this field with the title field of the events belonging to this series.",
+                        "type": "string",
+                        "x-go-name": "Title"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "Settlement": {
+                "type": "object",
+                "required": [
+                    "ticker",
+                    "market_result",
+                    "yes_count",
+                    "yes_total_cost",
+                    "no_count",
+                    "no_total_cost",
+                    "revenue",
+                    "settled_time"
+                ],
+                "properties": {
+                    "market_result": {
+                        "description": "Settlement result for this market.",
+                        "type": "string",
+                        "x-go-name": "MarketResult"
+                    },
+                    "no_count": {
+                        "description": "Number of no contracts owned on settlement.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoCount"
+                    },
+                    "no_total_cost": {
+                        "description": "Cost of the aggregate no position in this market on settlement in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "NoTotalCost"
+                    },
+                    "revenue": {
+                        "description": "Value earned in this settlement in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "Revenue"
+                    },
+                    "settled_time": {
+                        "$ref": "#/components/schemas/OutputTime"
+                    },
+                    "ticker": {
+                        "description": "Unique identifier for markets.",
+                        "type": "string",
+                        "x-go-name": "MarketTicker"
+                    },
+                    "yes_count": {
+                        "description": "Number of yes contracts owned on settlement.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesCount"
+                    },
+                    "yes_total_cost": {
+                        "description": "Cost of the aggregate yes position in this market on settlement in cents.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-go-name": "YesTotalCost"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "SettlementSource": {
+                "description": "The Name and URL of a settlement source used by Kalshi to determine a market.",
+                "type": "object",
+                "title": "SettlementSource",
+                "properties": {
+                    "name": {
+                        "description": "The official name of the settlement source",
+                        "type": "string",
+                        "x-go-name": "Name"
+                    },
+                    "url": {
+                        "description": "The URL of the settlement source",
+                        "type": "string",
+                        "x-go-name": "Url"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/svc-api2/model"
+            },
+            "WeeklySchedule": {
+                "type": "object",
+                "properties": {
+                    "friday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "monday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "saturday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "sunday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "thursday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "tuesday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    },
+                    "wednesday": {
+                        "$ref": "#/components/schemas/DailySchedule"
+                    }
+                },
+                "x-go-package": "github.com/Kalshi/exchange-infra/common/exchange_metadata"
+            }
+        }
+    },
+    "x-readme": {
+        "explorer-enabled": true,
+        "proxy-enabled": true
+    }
+}
