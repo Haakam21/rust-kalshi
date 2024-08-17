@@ -15,16 +15,12 @@ use serde::{Deserialize, Serialize};
 pub struct GetEventResponse {
     #[serde(rename = "event")]
     pub event: Box<models::EventData>,
-    /// Data for the markets in this event. This field is deprecated in favour of the \"markets\" field inside the event. Which will be filled with the same value if you use the query parameter \"with_nested_markets=true\".
-    #[serde(rename = "markets")]
-    pub markets: Vec<models::Market>,
 }
 
 impl GetEventResponse {
-    pub fn new(event: models::EventData, markets: Vec<models::Market>) -> GetEventResponse {
+    pub fn new(event: models::EventData) -> GetEventResponse {
         GetEventResponse {
             event: Box::new(event),
-            markets,
         }
     }
 }

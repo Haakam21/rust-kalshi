@@ -1,10 +1,10 @@
 use serde::Serialize;
-use reqwest::{Response, Error};
+use reqwest::{Response, Error, RequestBuilder};
 
 use crate::models::{
     LoginRequest,
     LoginResponse,
-    GetMarketsResponse,
+    GetEventResponse,
     GetMarketResponse,
 };
 
@@ -43,32 +43,50 @@ impl Client {
             password: password.to_string(),
         };
 
-        let res = self.post("/login", &req_body).await?;
+        let res = self.build_post("/login", &req_body).send().await?;
 
         let res_body = res.json::<LoginResponse>().await?;
+
         self.token = Some(format!("{} {}", res_body.member_id.unwrap(), res_body.token));
 
         Ok(res_body)
     }
 
-    pub async fn get_markets(&mut self) -> Result<GetMarketsResponse, Error> {
-        let res = self.get("/markets").await?;
+    pub async fn get_event(&mut self, ticker: &str, with_nested_markets: Option<bool>) -> Result<GetEventResponse, Error> {
+        let mut req = self.build_get(&format!("/events/{ticker}"));
 
-        res.json::<GetMarketsResponse>().await
+        if let Some(value) = with_nested_markets {
+            req = req.query(&[("with_nested_markets", value)]);
+        }
+
+        let res = req.send().await?;
+
+        res.json::<GetEventResponse>().await
     }
 
     pub async fn get_market(&mut self, ticker: &str) -> Result<GetMarketResponse, Error> {
-        let res = self.get(&format!("/markets/{ticker}")).await?;
+        let res = self.build_get(&format!("/markets/{ticker}")).send().await?;
 
         res.json::<GetMarketResponse>().await
     }
 
-    async fn get(&self, path: &str) -> Result<Response, Error> {
-        self.client.get(self.base_url.clone() + path).header(reqwest::header::AUTHORIZATION, reqwest::header::HeaderValue::from_str(self.token.as_ref().unwrap()).unwrap()).send().await
+    fn build_get(&self, path: &str) -> RequestBuilder {
+        self.build_auth(self.client.get(self.build_url(path)))
     }
 
-    async fn post<T: Serialize>(&self, path: &str, body: &T) -> Result<Response, Error> {
-        self.client.post(self.base_url.clone() + path).json(body).send().await
+    fn build_post<T: Serialize>(&self, path: &str, body: &T) -> RequestBuilder {
+        self.build_auth(self.client.post(self.build_url(path))).json(body)
+    }
+
+    fn build_auth(&self, req: RequestBuilder) -> RequestBuilder {
+        if let Some(token) = &self.token {
+            return req.header(reqwest::header::AUTHORIZATION, token)
+        }
+        req
+    }
+
+    fn build_url(&self, path: &str) -> String {
+        self.base_url.clone() + path
     }
 }
 
@@ -91,9 +109,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_markets() {
+    async fn get_event() {
         let mut client = new_client().await;
-        let res = client.get_markets().await.unwrap();
+        let res = client.get_event("INXU-24AUG16", Some(true)).await.unwrap();
         println!("{res:#?}");
     }
 
